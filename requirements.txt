@@ -26,7 +26,7 @@ joblib==1.4.2
 
 # Production web server (used by Render/Docker; `python app.py` still works locally).
 # gunicorn does not run on Windows - on Windows just use `python app.py`.
-gunicorn==23.0.0
+gunicorn==27.0.1
 
 # Loads a local .env file during development. Optional at runtime: if it is not
 # installed the app starts normally and reads real environment variables.
