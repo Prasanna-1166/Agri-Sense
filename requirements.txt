@@ -41,5 +41,5 @@ pypdf==4.3.1
 # scripts/generate_brand_assets.py. pytesseract only works if the Tesseract
 # program is installed on the machine (the Dockerfile installs it); without it,
 # image extraction simply reports "unavailable, please enter manually".
-Pillow==10.4.0
+Pillow==13.0.0
 pytesseract==0.3.13
