@@ -1,0 +1,45 @@
+# AgriSense AI - Agricultural Decision-Support Platform
+# Install with: pip install -r requirements.txt
+#
+# Runtime dependencies only. For running the tests use requirements-dev.txt.
+# Python 3.12 is required: numpy 1.26 / pandas 2.2 / scikit-learn 1.5.1 below
+# have no wheels for newer Pythons (see .python-version).
+#
+# No API keys are required to run the CORE app:
+#   - Geocoding uses the free OpenStreetMap Nominatim service
+#   - Weather/climate/elevation data uses the free, keyless Open-Meteo API
+#   - Soil data uses the free, keyless SoilGrids/ISRIC REST API (with
+#     graceful fallback to regional estimates if unavailable)
+#   - Market prices use data.gov.in's published sample key by default
+#
+# The OPTIONAL AgriSense Assistant chatbot needs one key (LLM_API_KEY,
+# see .env.example) - every other feature works without it.
+
+Flask==3.0.3
+requests==2.32.3
+numpy==1.26.4
+pandas==2.2.2
+# IMPORTANT: the trained models in models/*.joblib are pickles created with this
+# exact scikit-learn version. Do not change it without retraining the models.
+scikit-learn==1.5.1
+joblib==1.4.2
+
+# Production web server (used by Render/Docker; `python app.py` still works locally).
+# gunicorn does not run on Windows - on Windows just use `python app.py`.
+gunicorn==23.0.0
+
+# Loads a local .env file during development. Optional at runtime: if it is not
+# installed the app starts normally and reads real environment variables.
+python-dotenv==1.0.1
+
+# pypdf: text extraction from uploaded PDF soil test reports (optional
+# feature - the app degrades gracefully to manual entry if this or the
+# OCR libraries below are unavailable)
+pypdf==4.3.1
+
+# Optional image OCR for soil report photo uploads. Pillow is also used by
+# scripts/generate_brand_assets.py. pytesseract only works if the Tesseract
+# program is installed on the machine (the Dockerfile installs it); without it,
+# image extraction simply reports "unavailable, please enter manually".
+Pillow==10.4.0
+pytesseract==0.3.13

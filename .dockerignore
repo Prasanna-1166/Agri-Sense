@@ -1,0 +1,22 @@
+# Keep the image small and make sure no secrets or local data are ever baked in.
+.git
+.github
+.gitignore
+.env
+.env.*
+!.env.example
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+tests/
+docs/
+data/users/
+data/cache/
+data/uploads/
+data/prediction_history.json
+data/farm_profile.json
+*.log
+*.md
+!README.md

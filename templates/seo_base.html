@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en-IN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% include "_head_meta.html" %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">
+</head>
+<body class="site-page">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="site-header-inner">
+    <a class="site-brand" href="{{ url_for('index') }}"><span aria-hidden="true">🌾</span> AgriSense AI</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="{{ url_for('seo.crops_index') }}">Crop guides</a>
+      <a href="{{ url_for('seo.privacy') }}">Privacy</a>
+      <a class="btn btn-primary" href="{{ url_for('index') }}">Open the app</a>
+    </nav>
+  </div>
+</header>
+
+<main class="site-main" id="main">
+{% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <p><strong>AgriSense AI</strong> is a decision-support tool for farmers in Andhra Pradesh and Telangana. It is not a substitute for local agricultural advice, official advisories, or a soil test.</p>
+    <p class="small-muted">
+      <a href="{{ url_for('index') }}">Open the app</a> ·
+      <a href="{{ url_for('seo.crops_index') }}">Crop guides</a> ·
+      <a href="{{ url_for('seo.privacy') }}">Privacy</a> ·
+      <a href="https://github.com/Prasanna-1166/AgriSense-AI" rel="noopener">Source code</a>
+    </p>
+  </div>
+</footer>
+</body>
+</html>

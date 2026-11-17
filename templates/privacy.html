@@ -1,0 +1,52 @@
+{% extends "seo_base.html" %}
+{% block content %}
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <a href="{{ url_for('index') }}">Home</a> <span aria-hidden="true">›</span> <span aria-current="page">Privacy</span>
+</nav>
+<article class="page-narrow">
+  <h1>Privacy</h1>
+  <p class="lead">AgriSense AI has no accounts, no advertising and no analytics. This page explains what happens to the information you enter, in plain language. Last updated: November 2026.</p>
+
+  <section class="card">
+    <h2>What you give the app</h2>
+    <ul class="plain-list">
+      <li><strong>Location and farm details</strong> (a place you search or click on the map, farm area, irrigation, optional soil values). Used to produce your recommendation.</li>
+      <li><strong>Soil-report uploads</strong> (optional). The file is read to extract soil values and is deleted from the server immediately afterwards, whether or not extraction succeeds.</li>
+      <li><strong>Chat messages</strong> to the AgriSense Assistant (optional), sent together with the crop, yield, cost and farm data currently on your screen.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>What is stored, and for how long</h2>
+    <ul class="plain-list">
+      <li><strong>Prediction history and "My Farm" profile</strong> are saved on the server so they are still there when you return. They are kept in a private folder tied to a random identifier stored in your browser, so other visitors cannot see them.</li>
+      <li>Records you have not touched for about 90 days are deleted automatically. You can delete your history or profile yourself at any time from the History and My Farm pages.</li>
+      <li><strong>Chat conversations are not stored</strong> by AgriSense. They live only in your open browser tab.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>The one cookie</h2>
+    <p><code>agrisense_vid</code> is a first-party cookie holding a random identifier. It exists only so your history and farm profile stay separate from everyone else's. It contains no personal information and is not used for tracking, analytics or advertising. Clearing your browser cookies detaches you from that data (it is then removed by the automatic cleanup).</p>
+  </section>
+
+  <section class="card">
+    <h2>Other services involved</h2>
+    <p>To work, AgriSense contacts the following. We do not add analytics or ad trackers.</p>
+    <ul class="plain-list">
+      <li><strong>OpenStreetMap Nominatim</strong> – turns place names into coordinates and back (receives the place text or coordinates).</li>
+      <li><strong>Open-Meteo</strong> and <strong>ISRIC SoilGrids</strong> – weather, climate, elevation and soil data for the coordinates you chose.</li>
+      <li><strong>data.gov.in (AGMARKNET)</strong> – mandi market prices; only the crop, state and district are sent, never anything about you.</li>
+      <li><strong>An LLM provider (Groq by default)</strong> – answers Assistant questions, only when you use the chat. It receives your message and the farm data shown on screen, and handles it under its own privacy policy.</li>
+      <li><strong>Your browser</strong> also loads fonts from Google Fonts, map and chart libraries from unpkg and jsDelivr, and map tiles from OpenStreetMap. Those providers can see your IP address as for any website.</li>
+      <li><strong>The hosting provider</strong> keeps standard server access logs (such as IP address and requested URL). AgriSense also holds IP addresses briefly in memory to limit abusive request rates.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Important</h2>
+    <p>AgriSense AI is a decision-support tool. Its recommendations and estimates are not guarantees and not professional agricultural, legal or financial advice.</p>
+    <p>Questions or concerns? Open an issue on the <a href="{{ repo_url }}" rel="noopener">project's GitHub page</a>.</p>
+  </section>
+</article>
+{% endblock %}

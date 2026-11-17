@@ -1,0 +1,31 @@
+{% extends "seo_base.html" %}
+{% block content %}
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <a href="{{ url_for('index') }}">Home</a> <span aria-hidden="true">›</span> <span aria-current="page">Crop guides</span>
+</nav>
+<div class="page-narrow">
+  <h1>Crop guides</h1>
+  <p class="lead">Seed or planting requirement, fertilizer, crop duration and cost for {{ total }} crops — every figure shown with its source, per hectare.</p>
+  <p>These guides contain only information AgriSense AI could trace to a named, dated source. Where a figure could not be sourced it is shown as unavailable rather than estimated, and crops without sourced data have no guide. Use them as a reference, then open the app to scale them to your own farm.</p>
+
+  {% for category, guides in by_category | dictsort %}
+  <section aria-labelledby="cat-{{ category }}">
+    <h2 id="cat-{{ category }}">{{ category | replace('_', ' ') | title }}</h2>
+    <div class="guide-grid">
+      {% for g in guides %}
+      <a class="guide-card" href="{{ url_for('seo.crop_detail', crop_id=g.id) }}">
+        <strong>{{ g.name }}</strong>
+        <span class="small-muted">{{ g.facts | join(' · ') }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+
+  <section class="card cta-card">
+    <h2>Plan for your own farm</h2>
+    <p>Not sure which crop to grow? AgriSense AI recommends one from your location, soil and climate.</p>
+    <p><a class="btn btn-primary" href="{{ url_for('index') }}">Open AgriSense AI</a></p>
+  </section>
+</div>
+{% endblock %}

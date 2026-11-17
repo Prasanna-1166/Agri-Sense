@@ -1,0 +1,32 @@
+# Render Blueprint - one-click deploy of AgriSense AI.
+# Render dashboard -> New -> Blueprint -> pick this GitHub repo.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: agrisense-ai
+    runtime: python
+    plan: free
+    region: singapore            # closest Render region to India
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: gunicorn app:app   # settings live in gunicorn.conf.py
+    healthCheckPath: /api/health     # 200 once the ML models are loaded
+    autoDeploy: true                 # redeploy on every push to the default branch
+    envVars:
+      # Pin Python: new Render services default to a newer Python for which the
+      # pinned numpy/pandas/scikit-learn have no wheels, so the build would fail.
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: AGRISENSE_ENV
+        value: production
+      - key: AGRISENSE_BEHIND_PROXY    # trust Render's proxy for client IP / https
+        value: "1"
+      # The three below are secrets/site-specific: Render asks you for them during
+      # setup (leave any blank to skip). They are NOT stored in this repository.
+      - key: SITE_URL                  # e.g. https://agrisense-ai.onrender.com
+        sync: false
+      - key: LLM_API_KEY               # optional - enables the AgriSense Assistant chat
+        sync: false
+      - key: DATA_GOV_IN_API_KEY       # optional - your own key avoids the shared-key rate limit
+        sync: false
+      - key: GOOGLE_SITE_VERIFICATION  # optional - Search Console "HTML tag" token (see docs/deployment.md)
+        sync: false

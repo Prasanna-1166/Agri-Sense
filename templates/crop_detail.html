@@ -1,0 +1,165 @@
+{% extends "seo_base.html" %}
+{% macro src(s) -%}
+  {%- if s -%}<a href="{{ s.url }}" rel="noopener" target="_blank">{{ s.org }} — {{ s.title }}</a>{% if s.year %} <span class="small-muted">({{ s.year }})</span>{% endif %}{%- endif -%}
+{%- endmacro %}
+{% macro badge(status) -%}
+  {%- if status == 'VERIFIED_SOURCE' -%}<span class="status-badge status-retrieved">Verified source</span>
+  {%- elif status == 'SOURCE_ESTIMATE' -%}<span class="status-badge status-estimated">Source estimate</span>
+  {%- else -%}<span class="status-badge status-fallback">Unavailable</span>{%- endif -%}
+{%- endmacro %}
+
+{% block content %}
+{% set name = plan.display_name %}
+{% set dur = plan.duration or {} %}
+{% set pm = plan.planting_material or {} %}
+{% set ferts = plan.fertilizers if plan.fertilizers is iterable and plan.fertilizers is not mapping else [] %}
+{% set pp = plan.plant_protection if plan.plant_protection is iterable and plan.plant_protection is not mapping else [] %}
+{% set survey = (plan.economics or {}).surveyed_total %}
+
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <a href="{{ url_for('index') }}">Home</a> <span aria-hidden="true">›</span>
+  <a href="{{ url_for('seo.crops_index') }}">Crop guides</a> <span aria-hidden="true">›</span>
+  <span aria-current="page">{{ name }}</span>
+</nav>
+
+<article class="page-narrow">
+  <h1>{{ name }} cultivation guide</h1>
+  <p class="lead">Seed or planting requirement, fertilizer, duration and cost for {{ name | lower }}, shown <strong>per hectare</strong> with the source of every figure.</p>
+  <p class="small-muted">
+    {% if plan.region_scope %}Scope: {{ plan.region_scope }}. {% endif %}
+    {% if plan.last_verified %}Data last reviewed: {{ plan.last_verified }}.{% endif %}
+  </p>
+
+  {% if plan.ml_recommendation_supported %}
+    <div class="notice-box">AgriSense's machine-learning model can recommend {{ name | lower }} and estimate its yield from your soil and climate. The figures below are agronomic reference data, separate from that prediction.</div>
+  {% else %}
+    <div class="notice-box"><strong>ML recommendation unavailable for {{ name | lower }}.</strong> {{ (crop_info or {}).get('reason', 'The training dataset does not include this crop.') }} Any information below is agronomic reference only.</div>
+  {% endif %}
+
+  {% if not has_facts %}
+    <div class="card"><h2>No sourced data yet</h2>
+      <p>AgriSense AI does not yet hold sourced cultivation data for {{ name | lower }}, and it does not estimate values it cannot source. Please consult your local Krishi Vigyan Kendra (KVK) or state agriculture department.</p></div>
+  {% endif %}
+
+  <section class="card" aria-labelledby="h-duration">
+    <h2 id="h-duration">Crop duration</h2>
+    {% if dur.status == 'VERIFIED_SOURCE' %}
+      <p><strong>{{ dur.min_days }}–{{ dur.max_days }} days</strong> {{ badge(dur.status) }}</p>
+      {% if dur.description %}<p>{{ dur.description }}</p>{% endif %}
+      <p class="small-muted">Source: {{ src(dur.source) }}</p>
+    {% else %}
+      <p>{{ badge('UNAVAILABLE') }} {{ dur.note or 'No verified source on file.' }}</p>
+    {% endif %}
+  </section>
+
+  <section class="card" aria-labelledby="h-seed">
+    <h2 id="h-seed">{% if pm.type == 'seed' %}Seed requirement{% else %}Seed &amp; planting material{% endif %}</h2>
+    {% if pm.status in ('VERIFIED_SOURCE', 'SOURCE_ESTIMATE') %}
+      <p><strong>{{ pm.quantity_per_ha | num }} {{ pm.unit }} per hectare</strong>
+         {% if pm.type and pm.type != 'seed' %}({{ pm.type }}){% endif %} {{ badge(pm.status) }}</p>
+      {% if pm.spacing %}<p>Spacing: {{ pm.spacing }}</p>{% endif %}
+      {% if pm.quantity_range %}<p>{{ pm.quantity_range }}</p>{% endif %}
+      {% if pm.notes %}<p class="small-muted">{{ pm.notes }}</p>{% endif %}
+      <p class="small-muted">Source: {{ src(pm.source) }}</p>
+    {% else %}
+      <p>{{ badge('UNAVAILABLE') }} {{ pm.note or 'No verified source on file.' }}</p>
+    {% endif %}
+  </section>
+
+  <section class="card" aria-labelledby="h-fert">
+    <h2 id="h-fert">Fertilizer recommendation</h2>
+    {% set shown = ferts | selectattr('status', 'in', ['VERIFIED_SOURCE', 'SOURCE_ESTIMATE']) | list %}
+    {% if shown %}
+      {% if plan.fertilizer_note %}<p>{{ plan.fertilizer_note }}</p>{% endif %}
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Nutrient / input</th><th>Quantity</th><th>When</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for f in shown %}
+          {% set per_ha = f.get('quantity_per_ha') %}
+          {% set per_plant = f.get('quantity_per_plant') %}
+          <tr>
+            <td>{{ f.get('nutrient') or f.get('name') }}{% if f.get('purpose') %}<div class="small-muted">{{ f.purpose }}</div>{% endif %}</td>
+            <td>
+              {% if per_ha is not none %}{{ per_ha | num }} {{ f.get('unit') or '' }}{% if per_plant is not none %}<div class="small-muted">= {{ per_plant | num }} {{ f.get('unit_per_plant') or '' }}</div>{% endif %}
+              {% elif per_plant is not none %}{{ per_plant | num }} {{ f.get('unit_per_plant') or '' }}
+              {% else %}—{% endif %}
+            </td>
+            <td>{{ f.get('stage') or '—' }}</td>
+            <td>{{ badge(f.status) }}</td>
+          </tr>
+          {% if f.get('notes') %}<tr class="row-note"><td colspan="4" class="small-muted">{{ f.notes }}</td></tr>{% endif %}
+        {% endfor %}
+        </tbody>
+      </table></div>
+      <p class="small-muted">Final fertilizer dose should be adjusted according to a soil test. Sources:
+        {% for s in plan.sources %}{{ src(s) }}{% if not loop.last %}; {% endif %}{% endfor %}</p>
+    {% else %}
+      <p>{{ badge('UNAVAILABLE') }} No verified fertilizer recommendation on file for {{ name | lower }}.</p>
+    {% endif %}
+  </section>
+
+  <section class="card" aria-labelledby="h-pp">
+    <h2 id="h-pp">Plant protection</h2>
+    {% if pp %}
+      <p class="small-muted">{{ plan.plant_protection_disclaimer }}</p>
+      <div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Pest / disease</th><th>Management</th><th>Active ingredient &amp; rate</th><th>Stage</th></tr></thead>
+        <tbody>
+        {% for p in pp %}
+          <tr>
+            <td>{{ p.target }}</td>
+            <td>{{ p.management or '—' }}</td>
+            <td>{% if p.active_ingredient %}{{ p.active_ingredient }}{% if p.rate %}<div class="small-muted">{{ p.rate }}</div>{% endif %}{% else %}—{% endif %}</td>
+            <td>{{ p.stage or '—' }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table></div>
+      <p class="small-muted">Source: {{ src(pp[0].source) }}</p>
+    {% else %}
+      <p>{{ badge('UNAVAILABLE') }} Verified plant-protection information is unavailable. AgriSense does not list pesticides it cannot source.</p>
+    {% endif %}
+  </section>
+
+  <section class="card" aria-labelledby="h-cost">
+    <h2 id="h-cost">Cost of cultivation</h2>
+    {% if survey %}
+      <p><strong>₹{{ survey.total_per_ha | inr }} per hectare</strong> {{ badge(survey.status) }}</p>
+      <p>{{ survey.cost_concept }}</p>
+      <p class="small-muted">Region: {{ survey.region }} · Year: {{ survey.year }}</p>
+      {% if survey.breakdown_pct %}
+        <ul class="plain-list">{% for b in survey.breakdown_pct %}<li>{{ b.component }}: {{ b.pct_of_total | num }}% of total</li>{% endfor %}</ul>
+      {% endif %}
+      {% if survey.notes %}<p class="small-muted">{{ survey.notes }}</p>{% endif %}
+      <p class="small-muted">Source: {{ src(survey.source) }}</p>
+    {% else %}
+      <p>{{ badge('UNAVAILABLE') }} No verified cost-of-cultivation figure is on file for {{ name | lower }}. AgriSense shows a cost only when a published, dated source exists.</p>
+    {% endif %}
+  </section>
+
+  <p class="small-muted">{{ plan.disclaimer }}</p>
+
+  <section class="card cta-card" aria-labelledby="h-cta">
+    <h2 id="h-cta">Get a plan for your own farm</h2>
+    <p>Enter your location and farm size and AgriSense AI scales these quantities to your area, estimates yield, and checks today's mandi price.</p>
+    <p><a class="btn btn-primary" href="{{ url_for('index') }}">Open AgriSense AI</a></p>
+  </section>
+
+  {% if related_crops %}
+  <section aria-labelledby="h-related">
+    <h2 id="h-related">Related crop guides</h2>
+    <ul class="chip-list">
+      {% for r in related_crops %}<li><a href="{{ url_for('seo.crop_detail', crop_id=r.id) }}">{{ r.name }}</a></li>{% endfor %}
+      <li><a href="{{ url_for('seo.crops_index') }}">All crop guides</a></li>
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if plan.sources %}
+  <section aria-labelledby="h-sources">
+    <h2 id="h-sources">All sources for this guide</h2>
+    <ul class="plain-list">{% for s in plan.sources %}<li>{{ src(s) }}</li>{% endfor %}</ul>
+  </section>
+  {% endif %}
+</article>
+{% endblock %}

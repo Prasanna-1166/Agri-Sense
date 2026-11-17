@@ -1,0 +1,35 @@
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Environment / secrets - NEVER commit these. Only .env.example (placeholders) is tracked.
+.env
+.env.*
+!.env.example
+
+# Runtime data (created at run time; per-visitor and potentially personal)
+data/users/
+data/uploads/
+data/cache/
+data/farm_profile.json
+data/prediction_history.json
+data/crop_dataset_cache.csv
+models/cache/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
