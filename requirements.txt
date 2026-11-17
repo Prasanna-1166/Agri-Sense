@@ -16,7 +16,7 @@
 # see .env.example) - every other feature works without it.
 
 Flask==3.0.3
-requests==2.32.3
+requests==2.34.2
 numpy==1.26.4
 pandas==2.2.2
 # IMPORTANT: the trained models in models/*.joblib are pickles created with this
